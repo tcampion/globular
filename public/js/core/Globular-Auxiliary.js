@@ -299,9 +299,11 @@ Array.prototype.move = function(instructions) {
         if (i == this.length) return;
         var command = instructions.end(i);
         var index = this.length - 1 - i;
-        if (command.relative != undefined) {
+        if (!isNaN(command)) {
+            this[index] += command;
+        } else if (command.relative != undefined) {
             this[index] += command.relative;
-        } else {
+        } else if (command.absolute != undefined) {
             this[index] = command.absolute;
         }
     }
