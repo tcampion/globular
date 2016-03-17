@@ -210,7 +210,7 @@ Diagram.prototype.subinstructions = function(diagram_key, instructions) {
     var instructions_key_cell = instructions.list[instructions.key];
     
     if (diagram_key_cell.key.length != instructions_key_cell.key.length) return false;
-    var offset_array = [];
+    var offset_array = zero_array(this.dimension);
     
     for (var i = 0; i < diagram_key_cell.key.length; i++) {
         offset_array[i] = diagram_key_cell.key[i] - instructions_key_cell.key[i];
@@ -227,7 +227,7 @@ Diagram.prototype.subinstructions = function(diagram_key, instructions) {
         if (list_cell.id != diagram_cell.id) return false;
 
         // Is it at the right position?
-        for (var j = 0; j < diagram_cell.length; j++) {
+        for (var j = 0; j < diagram_cell.key.length; j++) {
             if (diagram_cell.key[j] != list_cell.key[j] + offset_array[j]) return false;
         }
     }

@@ -268,6 +268,8 @@ Diagram.prototype.interchangerAllowed.IntLS = function(type, key) {
     var slice = this.getSlice(key.last());
 
     var subtype = (type.tail('I0') ? type.substr(0, type.length - 4) : type.substr(0, type.length - 2));
+    var subsubtype = (subtype.tail('I0') ? subtype.substr(0, subtype.length - 4) : subtype.substr(0, subtype.length - 2));
+
     var steps_back = this.getSlice(key.last()).pseudoExpand(subtype, box, 1); // The subtype is needed to identify which family to call the expansion procedure on
 
     var n = box.max.last() - box.min.last();
@@ -362,12 +364,90 @@ Diagram.prototype.interchangerAllowed.IntLS = function(type, key) {
         if (!expanded_list) {return false;}
         var source = [cell].concat(expanded_list);
         key_start = 0;
+        
+        // Special code for empty sources
+        if(g1_source === 0 || g1_target === 0){
+            var temp_slice = this.getSlice(key.last());
+            if(subtype.tail('I0')){
+                var offset = -1;
+                if(cell.key.last() + offset - (l - 1) < 0) {return false;}
+                for(var i = 0; i < l; i++){
+                    var aaa = temp_slice.cells[cell.key.last() + offset - i];
+                    if(aaa.id != subsubtype) {return false;}
+                    var intI_modifier = 0;
+                    if (aaa.id === 'IntI0') {intI_modifier = -1;}
+                    if(subtype.tail('LI0')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() - 1 + i)) {return false;}
+                    } else if(subtype.tail('RI0')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() + l - 1 - i)) {return false;}
+                    }
+                }
+                
+            }else{
+                var offset = n - (this.target_size(key.last()) - this.source_size(key.last()));
+                if(cell.key.last() + offset + l - 1 >= temp_slice.cells.length) {return false;}
+                for(var i = 0; i < l; i++){
+                    var aaa = temp_slice.cells[cell.key.last() + offset + i];
+                    if(aaa.id != subsubtype) {return false;}  
+                    var intI_modifier = 0;
+                    if (aaa.id === 'IntI0') {intI_modifier = -1;}
+                    if(subtype.tail('L')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() + l - 1 - i)) {return false;}
+                    } else if(subtype.tail('R')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() - 1 + i)) {return false;}
+                    }
+                }
+            }
+        }
+
+
     } else {
-        if(x < 0 || key.last() - steps_back < 0 || x >= this.getSlice(key.last() - steps_back).cells.length) {return false;}
+        if(x < 0 || key.last() - steps_back < 0 || (x >= this.getSlice(key.last() - steps_back).cells.length && g1_source != 0)) {return false;}
         var expanded_list = this.getSlice(key.last() - steps_back).expand(subtype, {up: x, across: y, length: l}, n, m);
         if (!expanded_list) {return false;}
         var source = expanded_list.concat([cell]);
         key_start = source.length - 1;
+        
+        // Special code for empty sources
+        if(g1_source === 0 || g1_target === 0){
+            var temp_slice = this.getSlice(key.last());
+            if(subtype.tail('I0')){
+                var offset = n;
+                if(cell.key.last() + offset + l - 1 >= temp_slice.cells.length) {return false;}
+                for(var i = 0; i < l; i++){
+                    var aaa = temp_slice.cells[cell.key.last() + offset + i];
+                    if(aaa.id != subsubtype) {return false;}
+                    var intI_modifier = 0;
+                    if (aaa.id === 'IntI0') {intI_modifier = -1;}
+                    if(subtype.tail('LI0')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() + l - 1 - i)) {return false;}
+                    } else if(subtype.tail('RI0')){
+                        if(!(aaa.key.last() + intI_modifier=== box.min.penultimate() - 1 + i)) {return false;}
+                    }
+                }
+                
+            }else{
+                var offset = -1;
+                if(cell.key.last() + offset - (l - 1) < 0) {return false;}
+                for(var i = 0; i < l; i++){
+                    var aaa = temp_slice.cells[cell.key.last() + offset - i];
+                    if(aaa.id != subsubtype) {return false;}
+                    var intI_modifier = 0;
+                    if (aaa.id === 'IntI0') {intI_modifier = -1;}
+                    if(subtype.tail('L')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() - 1 + i)) {return false;}
+                    } else if(subtype.tail('R')){
+                        if(!(aaa.key.last() + intI_modifier === box.min.penultimate() + l - 1 - i)) {return false;}
+                    }
+                }
+            }
+        }
+        
+        /*
+        var offset = (subtype.tail('I0')) ? n: -1;
+        var aaa = this.getSlice(key.last()).cells[cell.key.last() + offset].id;
+        if(aaa!= subsubtype) {return false;}
+        */
     }
 
     // Inspect instruction list
@@ -444,6 +524,11 @@ Diagram.prototype.getInterchangerBoundingBox.IntLS = function(type, key) {
 Diagram.prototype.getInterchangerCoordinates.IntLS = function(type, key) {
     return this.getInterchangerBoundingBox(type, key).min;
 
+}
+
+Diagram.prototype.getInverseKey.IntLS = function(type, key) {
+
+    // *** // 
 }
 
 
