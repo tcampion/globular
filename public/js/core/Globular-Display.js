@@ -678,8 +678,6 @@ Display.prototype.exportSequence = function() {
         var export_diagram = slice.getSlice[i];
         export_diagram.downloadPNG(filename + " " + i + ".png", HIGHLIGHT);
     }
-
-    var last_slice_control = this.slices.last();
 }
 
 Display.prototype.has_controls = function() {
